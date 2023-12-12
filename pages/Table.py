@@ -12,16 +12,18 @@ class RowNotFoundException(Exception):
 
 class Table(object):
     """Models the table oject and its actions """
-    # Locators
+    # Default Locators
     _TABLE = (By.CSS_SELECTOR, 'div[role="table"]')
     _HEADER = (By.CSS_SELECTOR, 'div[role="columnheader"]')
     _BODY = (By.CSS_SELECTOR, 'div.oxd-table-body')
     _ROW = (By.CSS_SELECTOR, 'div.oxd-table-card')
     _CELL = (By.CSS_SELECTOR, 'div[role="cell"]')
 
-    def __init__(self, driver):
+    def __init__(self, driver, table_locators: dict = None):
         self._driver = driver
         self._actions_locators = {}
+        if table_locators:
+            self.set_table_locators(table_locators)
 
     @property
     def actions_locators(self):
@@ -30,6 +32,10 @@ class Table(object):
     @actions_locators.setter
     def actions_locators(self, locators: dict):
         self._actions_locators.update(locators)
+
+    def set_table_locators(self, locators: dict):
+        for element, locator in locators.items():
+            self.__setattr__(element, locator)
 
     def get_table(self) -> WebElement:
         return WebDriverWait(self._driver, 10).until(EC.visibility_of_element_located(self._TABLE))

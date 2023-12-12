@@ -1,47 +1,41 @@
-import time
 import pytest
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
+from faker import Faker
 
-from pages.LoginPage import LoginPage
 from pages.MainMenu import MainMenu
 
-URL = 'https://opensource-demo.orangehrmlive.com/web/index.php/auth/login'
-DEFAULT_USER = {'username': 'Admin', 'password': 'admin123'}
-CANDIDATE_DATA = {'name': 'test', 'lastname': 'flaky', 'email': 'tflaky@domain.com'}
 
+class TestDemo:
+    @pytest.fixture
+    def get_person(self):
+        faker = Faker()
+        self.candidate = {'name': faker.name(),
+                          'lastname': faker.last_name(),
+                          'email': faker.email()}
 
-@pytest.fixture
-def driver():
-    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
-    driver.get(URL)
-    driver.maximize_window()
-    yield driver
-    driver.quit()
+    @pytest.fixture
+    def create_candidate(self, login_to_site, driver, get_person):
+        self.main_menu = MainMenu(driver)
+        self.recruitment_page = self.main_menu.click_on_recruitment_menu()
+        self.recruitment_page.click_add_candidate()
+        self.recruitment_page.enter_basic_candidate_data(**self.candidate)
+        self.recruitment_page.click_save_candidate()
+        self.main_menu.click_on_recruitment_menu()
 
+    def test_add_candidate(self, login_to_site, driver, get_person):
+        self.main_menu = MainMenu(driver)
+        self.recruitment_page = self.main_menu.click_on_recruitment_menu()
+        self.recruitment_page.click_add_candidate()
+        self.recruitment_page.enter_basic_candidate_data(**self.candidate)
+        self.recruitment_page.click_save_candidate()
+        self.main_menu.click_on_recruitment_menu()
 
-def test_one(driver):
-    login_page = LoginPage(driver)
-    main_menu = MainMenu(driver)
+        fail_msg = f'Candidate with name {self.candidate["name"]} {self.candidate["lastname"]} was not found!!'
+        assert self.recruitment_page.candidate_exists(f'{self.candidate["name"]} {self.candidate["lastname"]}'), fail_msg
 
-    login_page.do_login(DEFAULT_USER['username'], DEFAULT_USER['password'])
-    recruitment_page = main_menu.click_on_recruitment_menu()
-    # recruitment_page.click_add_candidate()
-    # recruitment_page.enter_basic_candidate_data(**CANDIDATE_DATA)
-    # recruitment_page.click_save_candidate()
-    # main_menu.click_on_recruitment_menu()
-    # fail_msg = f'Candidate with name {CANDIDATE_DATA["name"]} {CANDIDATE_DATA["lastname"]} was not found!!'
-    # assert recruitment_page.candidate_exists(f'{CANDIDATE_DATA["name"]} {CANDIDATE_DATA["lastname"]}'), fail_msg
-    recruitment_page.delete_candidate('test flaky')
-    main_menu.click_on_recruitment_menu()
-    time.sleep(5)
-
-
-
-
-
-
-
-
+    def test_delete_candidate(self, create_candidate):
+        self.recruitment_page.delete_candidate(f'{self.candidate["name"]} {self.candidate["lastname"]}')
+        self.main_menu.click_on_recruitment_menu()
+        fail_msg = f'Candidate with name {self.candidate["name"]} {self.candidate["lastname"]} was found!!'
+        candidate_exists = self.recruitment_page.candidate_exists(f'{self.candidate["name"]} {self.candidate["lastname"]}')
+        assert candidate_exists is False, fail_msg
 

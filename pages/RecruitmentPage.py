@@ -21,7 +21,6 @@ class RecruitmentPage(BasePage):
 
     def set_actions_table_locators(self):
         actions_table_locators = {'view': (By.CSS_SELECTOR, "div.oxd-table-cell-actions button i.bi-eye-fill"),
-                                  # 'delete': (By.CSS_SELECTOR, "div.oxd-table-cell-actions button i.bi-trash"),
                                   'delete': (By.XPATH, "//div[@class='oxd-table-cell-actions']"
                                                        "/button[i[@class='oxd-icon bi-trash']]"),
                                   'download': (By.CSS_SELECTOR, "div.oxd-table-cell-actions bi-download")}
@@ -74,5 +73,6 @@ class RecruitmentPage(BasePage):
     def delete_candidate(self, fullname: str):
         self._candidate_table.click_on_action_on_row('Candidate', fullname, 'delete')
         self.click(self._DELETE_CONFIRM)
+        self.wait_until_element_is_not_visible(self._DELETE_CONFIRM)
 
 

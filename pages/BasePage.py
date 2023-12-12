@@ -10,6 +10,9 @@ class BasePage(object):
     def wait_until_element_is_visible(self, locator: tuple):
         return WebDriverWait(self._driver, 10).until(EC.visibility_of_element_located(locator))
 
+    def wait_until_element_is_not_visible(self, locator: tuple):
+        return WebDriverWait(self._driver, 10).until(EC.invisibility_of_element_located(locator))
+
     def wait_until_all_elements_are_visible(self, locator: tuple):
         return WebDriverWait(self._driver, 10).until((EC.visibility_of_all_elements_located(locator)))
 
