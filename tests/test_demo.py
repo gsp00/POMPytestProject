@@ -8,7 +8,7 @@ class TestDemo:
     @pytest.fixture
     def get_person(self):
         faker = Faker()
-        self.candidate = {'name': faker.name(),
+        self.candidate = {'name': faker.first_name(),
                           'lastname': faker.last_name(),
                           'email': faker.email()}
 
@@ -30,12 +30,12 @@ class TestDemo:
         self.main_menu.click_on_recruitment_menu()
 
         fail_msg = f'Candidate with name {self.candidate["name"]} {self.candidate["lastname"]} was not found!!'
-        assert self.recruitment_page.candidate_exists(f'{self.candidate["name"]} {self.candidate["lastname"]}'), fail_msg
+        assert self.recruitment_page.candidate_name_listed(f'{self.candidate["name"]} {self.candidate["lastname"]}'), fail_msg
 
     def test_delete_candidate(self, create_candidate):
         self.recruitment_page.delete_candidate(f'{self.candidate["name"]} {self.candidate["lastname"]}')
         self.main_menu.click_on_recruitment_menu()
         fail_msg = f'Candidate with name {self.candidate["name"]} {self.candidate["lastname"]} was found!!'
-        candidate_exists = self.recruitment_page.candidate_exists(f'{self.candidate["name"]} {self.candidate["lastname"]}')
+        candidate_exists = self.recruitment_page.candidate_name_listed(f'{self.candidate["name"]} {self.candidate["lastname"]}')
         assert candidate_exists is False, fail_msg
 

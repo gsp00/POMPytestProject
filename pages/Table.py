@@ -40,6 +40,9 @@ class Table(object):
     def get_table(self) -> WebElement:
         return WebDriverWait(self._driver, 10).until(EC.visibility_of_element_located(self._TABLE))
 
+    def wait_until_table_loaded(self):
+        return WebDriverWait(self._driver, 15).until(EC.visibility_of_element_located(self._HEADER))
+
     def get_column_names(self) -> list:
         headers = WebDriverWait(self._driver, 10).until(EC.visibility_of_all_elements_located(self._HEADER))
         column_names = [header.text for header in headers]

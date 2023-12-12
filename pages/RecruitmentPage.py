@@ -13,6 +13,7 @@ class RecruitmentPage(BasePage):
     _SAVE_CANDIDATE = (By.XPATH, "//button[text()=' Save ']")
     _CANDIDATE_NAME_COLUMN = (By.XPATH, "//div[@class='oxd-table-card']//div[3]")
     _DELETE_CONFIRM = (By.XPATH, "//button[text()=' Yes, Delete ']")
+    _LOADING_INDICATOR = (By.CLASS_NAME, "oxd-loading-spinner")
 
     def __init__(self, driver):
         super(RecruitmentPage, self).__init__(driver)
@@ -68,11 +69,14 @@ class RecruitmentPage(BasePage):
         return index
 
     def candidate_name_listed(self, fullname: str) -> bool:
+        self._candidate_table.wait_until_table_loaded()
         return self._candidate_table.cell_exists('Candidate', fullname)
 
     def delete_candidate(self, fullname: str):
         self._candidate_table.click_on_action_on_row('Candidate', fullname, 'delete')
+        self.wait_until_element_is_visible(self._DELETE_CONFIRM)
         self.click(self._DELETE_CONFIRM)
         self.wait_until_element_is_not_visible(self._DELETE_CONFIRM)
+        self.wait_until_element_is_not_visible(self._LOADING_INDICATOR)
 
 
